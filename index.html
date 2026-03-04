@@ -1,81 +1,181 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Calculadora Comercial | Digincub</title>
+<title>Calculadora Comercial Digincub</title>
 
 <style>
 
 body{
+font-family: Arial, Helvetica, sans-serif;
+background:#f5f6fa;
 margin:0;
-background:#f4f6f8;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+padding:40px;
 }
 
 .container{
-width:100%;
-max-width:1000px;
-height:90vh;
+max-width:900px;
+margin:auto;
 background:white;
-border-radius:12px;
+padding:30px;
+border-radius:10px;
 box-shadow:0 10px 30px rgba(0,0,0,0.15);
-overflow:hidden;
-position:relative;
 }
 
-.loader{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
+h1{
+margin-top:0;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+label{
 font-size:14px;
-color:#666;
+display:block;
+margin-bottom:5px;
 }
 
-iframe{
+input[type=number]{
 width:100%;
-height:100%;
-border:none;
-display:none;
+padding:10px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+.result{
+background:#f0f3ff;
+padding:15px;
+border-radius:8px;
+margin-top:10px;
+}
+
+.result strong{
+display:block;
+font-size:20px;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="loader" id="loader">
-Carregando calculadora...
+<h1>Calculadora Comercial</h1>
+
+<div class="grid">
+
+<div>
+<label>Investimento mensal (R$)</label>
+<input id="investimento" type="number" value="10000">
 </div>
 
-<iframe
-id="app"
-src="https://claude.site/public/artifacts/7c21a01a-faf3-4086-b72e-9688eb7cf619/embed"
-allow="clipboard-write"
-allowfullscreen>
-</iframe>
+<div>
+<label>Preço por Lead (R$)</label>
+<input id="cpl" type="number" value="20">
+</div>
+
+<div>
+<label>Taxa de Agendamento (%)</label>
+<input id="agendamento" type="number" value="20">
+</div>
+
+<div>
+<label>Taxa de Comparecimento (%)</label>
+<input id="comparecimento" type="number" value="70">
+</div>
+
+<div>
+<label>Taxa de Conversão (%)</label>
+<input id="conversao" type="number" value="20">
+</div>
+
+<div>
+<label>Ticket Médio (R$)</label>
+<input id="ticket" type="number" value="3000">
+</div>
+
+</div>
+
+<h2>Resultados</h2>
+
+<div class="grid">
+
+<div class="result">
+Leads
+<strong id="leads">0</strong>
+</div>
+
+<div class="result">
+Agendamentos
+<strong id="agendamentos">0</strong>
+</div>
+
+<div class="result">
+Comparecimentos
+<strong id="comparecimentos">0</strong>
+</div>
+
+<div class="result">
+Vendas
+<strong id="vendas">0</strong>
+</div>
+
+<div class="result">
+Faturamento
+<strong id="faturamento">0</strong>
+</div>
+
+<div class="result">
+ROAS
+<strong id="roas">0</strong>
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-const iframe = document.getElementById("app");
-const loader = document.getElementById("loader");
+const inputs = document.querySelectorAll("input");
 
-iframe.onload = () => {
-loader.style.display = "none";
-iframe.style.display = "block";
-};
+function calcular(){
+
+const investimento = Number(document.getElementById("investimento").value);
+const cpl = Number(document.getElementById("cpl").value);
+
+const taxaAgendamento = Number(document.getElementById("agendamento").value)/100;
+const taxaComparecimento = Number(document.getElementById("comparecimento").value)/100;
+const taxaConversao = Number(document.getElementById("conversao").value)/100;
+
+const ticket = Number(document.getElementById("ticket").value);
+
+const leads = investimento / cpl;
+const agendamentos = leads * taxaAgendamento;
+const comparecimentos = agendamentos * taxaComparecimento;
+const vendas = comparecimentos * taxaConversao;
+
+const faturamento = vendas * ticket;
+const roas = faturamento / investimento;
+
+document.getElementById("leads").innerText = Math.round(leads);
+document.getElementById("agendamentos").innerText = Math.round(agendamentos);
+document.getElementById("comparecimentos").innerText = Math.round(comparecimentos);
+document.getElementById("vendas").innerText = Math.round(vendas);
+document.getElementById("faturamento").innerText = "R$ " + Math.round(faturamento).toLocaleString();
+document.getElementById("roas").innerText = roas.toFixed(2) + "x";
+
+}
+
+inputs.forEach(input=>{
+input.addEventListener("input", calcular);
+});
+
+calcular();
 
 </script>
 
