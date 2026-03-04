@@ -324,20 +324,41 @@ body { background: var(--light); font-family: 'Plus Jakarta Sans', sans-serif; m
       }
     });
 
-    // Update results
-    const results = [
-      { label: 'Faturamento', value: formatCurrency(faturamento), color: ORANGE, isMain: true },
-      { label: 'Número de Vendas', value: vendas, color: '#34D399' },
-      { label: 'Custo por Call Realizada', value: formatCurrency(custoPorCall), color: '#A78BFA' },
-      { label: 'CAC', value: formatCurrency(cac), color: '#60A5FA' },
-      { label: 'ROAS', value: roas.toFixed(2), color: '#FBBF24' },
-      { label: 'Nº de SDRs', value: sdrs, color: '#F472B6', sub: '750 leads/mês por SDR' },
-      { label: 'Nº de Closers', value: closers, color: '#2DD4BF', sub: '90 atendimentos/mês por Closer' },
+    // Update results - only update textContent, never recreate
+    const resultValues = [
+      formatCurrency(faturamento),
+      vendas,
+      formatCurrency(custoPorCall),
+      formatCurrency(cac),
+      roas.toFixed(2),
+      sdrs,
+      closers,
     ];
+    resultValues.forEach((val, i) => {
+      document.getElementById('rval-' + i).textContent = val;
+    });
 
+    // Update funnel - only update text
+    const funnelVals = [leads, agendamentos, comparecimentos, vendas];
+    const funnelLabels = ['Leads', 'Agendamentos', 'Comparecimentos', 'Vendas'];
+    funnelVals.forEach((val, i) => {
+      document.getElementById('fstep-' + i).textContent = funnelLabels[i] + ': ' + val;
+    });
+  }
+
+  // --- Build results panel once ---
+  (function buildResults() {
+    const resultsDef = [
+      { label: 'Faturamento', color: ORANGE, isMain: true },
+      { label: 'Número de Vendas', color: '#34D399' },
+      { label: 'Custo por Call Realizada', color: '#A78BFA' },
+      { label: 'CAC', color: '#60A5FA' },
+      { label: 'ROAS', color: '#FBBF24' },
+      { label: 'Nº de SDRs', color: '#F472B6', sub: '750 leads/mês por SDR' },
+      { label: 'Nº de Closers', color: '#2DD4BF', sub: '90 atendimentos/mês por Closer' },
+    ];
     const list = document.getElementById('results-list');
-    list.innerHTML = '';
-    results.forEach((r, i) => {
+    resultsDef.forEach((r, i) => {
       const card = document.createElement('div');
       card.className = 'result-card';
       card.style.borderLeftColor = r.color;
@@ -348,9 +369,9 @@ body { background: var(--light); font-family: 'Plus Jakarta Sans', sans-serif; m
 
       const valEl = document.createElement('div');
       valEl.className = 'result-value' + (r.isMain ? ' main-value' : '');
+      valEl.id = 'rval-' + i;
       valEl.style.color = r.color;
       valEl.style.textShadow = '0 0 12px ' + r.color + '44';
-      valEl.textContent = r.value;
 
       const labelDiv = document.createElement('div');
       labelDiv.innerHTML = labelHtml;
@@ -360,26 +381,28 @@ body { background: var(--light); font-family: 'Plus Jakarta Sans', sans-serif; m
       list.appendChild(card);
     });
 
-    // Update funnel
+    // Build funnel once
     const funnel = document.getElementById('funnel');
     funnel.innerHTML = '<div class="funnel-title">Funil de Vendas</div>';
-    const steps = [
-      { label: 'Leads', val: leads, w: 100 },
-      { label: 'Agendamentos', val: agendamentos, w: 78 },
-      { label: 'Comparecimentos', val: comparecimentos, w: 56 },
-      { label: 'Vendas', val: vendas, w: 36 },
+    const funnelSteps = [
+      { label: 'Leads', w: 100 },
+      { label: 'Agendamentos', w: 78 },
+      { label: 'Comparecimentos', w: 56 },
+      { label: 'Vendas', w: 36 },
     ];
-    steps.forEach((s, i) => {
+    funnelSteps.forEach((s, i) => {
       const step = document.createElement('div');
       step.className = 'funnel-step';
       step.style.width = s.w + '%';
       const opA = (30 + i * 20).toString(16).padStart(2, '0');
       const opB = (60 + i * 20).toString(16).padStart(2, '0');
       step.style.background = 'linear-gradient(90deg, ' + ORANGE + opA + ', ' + ORANGE + opB + ')';
-      step.innerHTML = '<span>' + s.label + ': ' + s.val + '</span>';
+      const span = document.createElement('span');
+      span.id = 'fstep-' + i;
+      step.appendChild(span);
       funnel.appendChild(step);
     });
-  }
+  })();
 
   // Footer
   document.getElementById('footer').textContent = '© ' + new Date().getFullYear() + ' Digincub — Calculadora Comercial';
